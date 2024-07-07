@@ -73,7 +73,7 @@ MonoBehaviour:
     m_OverrideState: 1
     m_Value: 0.5
   rounded:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 0
 --- !u!114 &-472848038723146214
 MonoBehaviour:
