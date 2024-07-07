@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using UnityEngine;
 
 public enum AcquireType
 {
@@ -16,9 +17,7 @@ public class SnapshotHandle : IDisposable
     private static Queue<SnapshotHandle> m_SnapshotSyncObj = new Queue<SnapshotHandle>();
 
     private static int m_WriteHandleIndex = 0;
-    private static float m_LastSyncTime = -1;
-
-    private static Task m_SyncTask;
+    private static Task s_SyncTask;
 
     public SnapshotHandle(AcquireType type)
     {
@@ -50,13 +49,12 @@ public class SnapshotHandle : IDisposable
         Snapshot.CurrentSnapshoot = Value;
         m_SnapshotSyncObj.Enqueue(this);
 
-        if (m_SyncTask == null)
+        if (s_SyncTask == null)
         {
-            m_SyncTask = Task.Run(() => SyncTaskUpdate());
+            s_SyncTask = Task.Run(() => SyncTaskUpdate());
         }
     }
 
-    bool m_PushImmidietly = false;
     static double m_AccumulatedTime = -1;
     private async Task SyncTaskUpdate()
     {
@@ -67,7 +65,7 @@ public class SnapshotHandle : IDisposable
                 while (m_SnapshotSyncObj.Count > 0)
                 {
                     var instanceTuple = m_SnapshotSyncObj.Dequeue();
-                    await CloudApi.SetVariableCloudAsync(nameof(PlayerSnapshot), instanceTuple.Value);
+                    await CloudApi.SetVariableCloudAsync(CloudConstants.SnapshotKey, instanceTuple.Value);
                 }
                 m_AccumulatedTime = 0;
             }
@@ -85,7 +83,7 @@ public class SnapshotHandle : IDisposable
             while (m_SnapshotSyncObj.Count > 0)
             {
                 var instanceTuple = m_SnapshotSyncObj.Dequeue();
-                await CloudApi.SetVariableCloudAsync(nameof(PlayerSnapshot), instanceTuple.Value);
+                await CloudApi.SetVariableCloudAsync(CloudConstants.SnapshotKey, instanceTuple.Value);
             }
         }
     }
