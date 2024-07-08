@@ -83,13 +83,13 @@ public class StartMenu : MonoBehaviour
                 snapHandle.Value.Items.Add(new InventoryItem("Wood", 0));
             }
 
-            SceneManager.LoadScene("SampleScene");
-            m_MatchMakingMenu.enabled = true;
+			DisplayMatchMakingMenu();
         });
     }
 
     private void DisplayMatchMakingMenu()
     {
+		MultiplayerManager.Instance.Connect();
         this.gameObject.SetActive(false);
         m_MatchMakingMenu.gameObject.SetActive(true);
     }

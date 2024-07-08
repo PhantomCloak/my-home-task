@@ -9,7 +9,7 @@ using UnityEngine.UI;
 
 public enum MatchmakingState
 {
-	Idle,
+    Idle,
     Cancelled,
     Searching,
     Matched
@@ -27,7 +27,8 @@ public class MatchMakingMenu : MonoBehaviour
     [SerializeField]
     private Button m_CancelButton;
 
-	private Color m_MatchFoundColor;
+    [SerializeField]
+    private Color m_MatchFoundColor;
 
     [Header("Props")]
     [SerializeField]
@@ -65,9 +66,9 @@ public class MatchMakingMenu : MonoBehaviour
     {
         switch (m_MatchmakingState)
         {
-			case MatchmakingState.Cancelled:
-				m_MatchmakingState = MatchmakingState.Idle;
-				break;
+            case MatchmakingState.Cancelled:
+                m_MatchmakingState = MatchmakingState.Idle;
+                break;
             case MatchmakingState.Searching:
                 m_FindButton.interactable = false;
                 m_CancelButton.gameObject.SetActive(true);
@@ -79,15 +80,15 @@ public class MatchMakingMenu : MonoBehaviour
                 m_StatusText.text = "Match Found!";
                 m_CancelButton.gameObject.SetActive(false);
 
-				var colors = m_FindButton.colors;
-				colors.disabledColor = m_MatchFoundColor;
-				m_FindButton.colors = colors;
+                var colors = m_FindButton.colors;
+                colors.disabledColor = m_MatchFoundColor;
+                m_FindButton.colors = colors;
                 break;
-			case MatchmakingState.Idle:
+            case MatchmakingState.Idle:
                 m_StatusText.text = "Find Match!";
-				m_FindButton.interactable = SelectionAreaMenu.Instance.HasCharacterSelected;
+                m_FindButton.interactable = SelectionAreaMenu.Instance.HasCharacterSelected;
                 m_CancelButton.gameObject.SetActive(false);
-				break;
+                break;
         }
     }
 
@@ -115,7 +116,14 @@ public class MatchMakingMenu : MonoBehaviour
         PlayFabMultiplayerAPI.CreateMatchmakingTicket(
             new CreateMatchmakingTicketRequest
             {
-                Creator = new MatchmakingPlayer { Entity = GetCurrentPlayerEntityKey(), },
+                Creator = new MatchmakingPlayer
+                {
+                    Entity = GetCurrentPlayerEntityKey(),
+                    Attributes = new MatchmakingPlayerAttributes
+                    {
+                        DataObject = new { Character = SelectionAreaMenu.Instance.SelectedCharacter },
+                    },
+                },
                 GiveUpAfterSeconds = 120,
                 QueueName = s_QueueName,
             },
@@ -180,15 +188,8 @@ public class MatchMakingMenu : MonoBehaviour
 
     private void StartMatch(GetMatchmakingTicketResult result)
     {
-        Debug.Log("Match Opponents");
-
-        foreach (var player in result.Members)
-        {
-            Debug.Log($"Opponent ID: {player.Entity.Id} Attributes: {player.Attributes.ToJson()}");
-        }
-
         PlayFabMultiplayerAPI.GetMatch(
-            new GetMatchRequest { MatchId = result.MatchId, QueueName = s_QueueName, },
+            new GetMatchRequest { MatchId = result.MatchId, QueueName = s_QueueName, ReturnMemberAttributes = true },
             (matchResult) =>
             {
                 Debug.Log($"Match Id: {matchResult.MatchId}");

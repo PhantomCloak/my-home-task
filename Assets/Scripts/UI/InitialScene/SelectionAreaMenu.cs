@@ -3,6 +3,12 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+public enum Character : int {
+	Red = 0,
+	Green = 1,
+	Yellow = 2
+};
+
 public class SelectionAreaMenu : MonoBehaviour
 {
 	[Header("UI")]
@@ -27,6 +33,11 @@ public class SelectionAreaMenu : MonoBehaviour
 	public bool HasCharacterSelected
     {
         get { return m_CurrentSelection != -1; }
+    }
+
+	public Character SelectedCharacter
+    {
+        get { return (Character)m_CurrentSelection; }
     }
 
 	public static SelectionAreaMenu Instance;
