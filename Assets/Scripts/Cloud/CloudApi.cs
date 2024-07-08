@@ -8,6 +8,28 @@ using UnityEngine;
 
 public static class CloudApi
 {
+
+    public static bool IsConnected
+    {
+        get
+        {
+            return PlayFabClientAPI.IsClientLoggedIn();
+        }
+    }
+
+    private static string m_EntityId = string.Empty;
+    public static string EntityId
+    {
+        get
+        {
+            return m_EntityId;
+        }
+        set
+        {
+            m_EntityId = value;
+        }
+    }
+
     public static async Task SetVariableCloudAsync<T>(
         string variableName,
         T obj,

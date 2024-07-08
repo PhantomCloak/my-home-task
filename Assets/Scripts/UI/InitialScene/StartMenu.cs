@@ -36,7 +36,10 @@ public class StartMenu : MonoBehaviour
         var request = new LoginWithCustomIDRequest
         {
             CustomId = Application.isEditor ? "Dev_Editor" : SystemInfo.deviceUniqueIdentifier,
-            CreateAccount = true
+            CreateAccount = true,
+			InfoRequestParameters = new() {
+				GetUserAccountInfo = true,
+			}
         };
         PlayFabClientAPI.LoginWithCustomID(request, OnLoginSuccess, OnLoginFailure);
 #endif
@@ -93,6 +96,8 @@ public class StartMenu : MonoBehaviour
 
     private void OnLoginSuccess(LoginResult result)
     {
+		CloudApi.EntityId = result.EntityToken.Entity.Id;
+		Debug.Log("Entity Id: " + CloudApi.EntityId);
         PlayerInitialization();
     }
 

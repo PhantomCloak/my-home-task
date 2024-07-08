@@ -1,8 +1,5 @@
-using PlayFab;
-using PlayFab.ClientModels;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class PlayerStatsMenu : MonoBehaviour
 {
@@ -17,6 +14,11 @@ public class PlayerStatsMenu : MonoBehaviour
 
     public void OnEnable()
     {
+#if UNITY_EDITOR
+		if(!CloudApi.IsConnected)
+			return;
+#endif
+
         using (var snapHandle = new SnapshotHandle(AcquireType.ReadOnly)) {
 			m_NameText.text = $"Name: {snapHandle.Value.PlayerName}";
 			m_LaunchCountText.text = $"Launch Count: {snapHandle.Value.Stats.LaunchCount}";
