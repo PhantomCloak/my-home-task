@@ -1,9 +1,14 @@
 using PlayFab;
 using PlayFab.ClientModels;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class StartMenu : MonoBehaviour
 {
+    [Header("UI")]
+    [SerializeField]
+    private Button m_StartButton;
+
     [SerializeField]
     private MatchmakingMenu m_MatchMakingMenu;
 
@@ -36,9 +41,7 @@ public class StartMenu : MonoBehaviour
         {
             CustomId = Application.isEditor ? "Dev_Editor" : SystemInfo.deviceUniqueIdentifier,
             CreateAccount = true,
-			InfoRequestParameters = new() {
-				GetUserAccountInfo = true,
-			}
+            InfoRequestParameters = new() { GetUserAccountInfo = true, }
         };
         PlayFabClientAPI.LoginWithCustomID(request, OnLoginSuccess, OnLoginFailure);
 #endif
@@ -48,61 +51,69 @@ public class StartMenu : MonoBehaviour
 
     private void PlayerInitialization()
     {
-        Snapshot.IsSnapshotExist((snapshotExist) =>
-        {
-            bool isFirstTime = !snapshotExist;
-            if (!isFirstTime)
+        Snapshot.IsSnapshotExist(
+            (snapshotExist) =>
             {
-                Snapshot.UpdateSnapshot((success) =>
+                bool isFirstTime = !snapshotExist;
+                if (!isFirstTime)
                 {
-                    if (!success)
-                    {
-                        Debug.LogError("An error occured while getting the snapshot.");
-                        m_LoginInProgress = false;
-						DisplayMatchMakingMenu();
-                        return;
-                    }
+                    Snapshot.UpdateSnapshot(
+                        (success) =>
+                        {
+                            if (!success)
+                            {
+                                Debug.LogError("An error occured while getting the snapshot.");
+                                m_LoginInProgress = false;
+                                DisplayMatchMakingMenu();
+                                return;
+                            }
 
-                    using (var snapHandle = new SnapshotHandle(AcquireType.ReadWrite))
-                    {
-                        snapHandle.Value.Stats.LaunchCount++;
-                    }
+                            using (var snapHandle = new SnapshotHandle(AcquireType.ReadWrite))
+                            {
+                                snapHandle.Value.Stats.LaunchCount++;
+                            }
 
-					DisplayMatchMakingMenu();
-                });
-                return;
+                            DisplayMatchMakingMenu();
+                        }
+                    );
+                    return;
+                }
+
+                // Do initial setup, resources etc. here
+                using (var snapHandle = new SnapshotHandle(AcquireType.ReadWrite))
+                {
+                    snapHandle.Value = new PlayerSnapshot();
+                    snapHandle.Value.Stats.LaunchCount = 1;
+                    snapHandle.Value.PlayerName =
+                        "demo_player_" + new System.Random().Next(0, int.MaxValue);
+                    snapHandle.Value.Items.Add(new InventoryItem("Wood", 0));
+                }
+
+                DisplayMatchMakingMenu();
             }
-
-            // Do initial setup, resources etc. here
-            using (var snapHandle = new SnapshotHandle(AcquireType.ReadWrite))
-            {
-                snapHandle.Value = new PlayerSnapshot();
-                snapHandle.Value.Stats.LaunchCount = 1;
-                snapHandle.Value.PlayerName = "demo_player_" + new System.Random().Next(0, int.MaxValue);
-                snapHandle.Value.Items.Add(new InventoryItem("Wood", 0));
-            }
-
-			DisplayMatchMakingMenu();
-        });
+        );
     }
 
     private void DisplayMatchMakingMenu()
     {
-		MultiplayerManager.Instance.Connect();
+        MultiplayerManager.Instance.Connect();
         this.gameObject.SetActive(false);
         m_MatchMakingMenu.gameObject.SetActive(true);
     }
 
     private void OnLoginSuccess(LoginResult result)
     {
-		CloudApi.EntityId = result.EntityToken.Entity.Id;
-		CloudApi.PlayFabId = result.PlayFabId;
-		Debug.Log("Entity Id: " + CloudApi.EntityId);
+        CloudApi.EntityId = result.EntityToken.Entity.Id;
+        CloudApi.PlayFabId = result.PlayFabId;
+        Debug.Log("Entity Id: " + CloudApi.EntityId);
         PlayerInitialization();
     }
 
     private void OnLoginFailure(PlayFabError error)
     {
-        Debug.LogError($"An error occured while authenticating using PlayFab. Error: {error.GenerateErrorReport()}");
+        Debug.LogError(
+            $"An error occured while authenticating using PlayFab. Error: {error.GenerateErrorReport()}"
+        );
+        m_StartButton.interactable = true;
     }
 }

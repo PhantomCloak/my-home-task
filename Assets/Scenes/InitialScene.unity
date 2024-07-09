@@ -2534,6 +2534,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fdd4ee068058c4ad39999f57af5350b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_StartButton: {fileID: 304181010}
   m_MatchMakingMenu: {fileID: 1826013250}
 --- !u!1 &1206622248
 GameObject:
