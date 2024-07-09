@@ -178,7 +178,7 @@ public class MatchmakingMenu : MonoBehaviour
                             IsRed = selectedChracter == Character.Red ? 1 : 0,
                             IsGreen = selectedChracter == Character.Green ? 1 : 0,
                             IsYellow = selectedChracter == Character.Yellow ? 1 : 0,
-							ApplicationVersion = Application.version
+			    ApplicationVersion = Application.version
                         },
                     },
                 },
@@ -362,8 +362,8 @@ public class MatchmakingMenu : MonoBehaviour
             s_PollThread = null;
         }
 
-		s_PollThreadCTS = new ();
-		s_PollThreadCT = s_PollThreadCTS.Token;
+	s_PollThreadCTS = new ();
+	s_PollThreadCT = s_PollThreadCTS.Token;
 
         if (s_LoadMatchSequenceCoroutine != null)
         {
