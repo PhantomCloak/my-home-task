@@ -48,7 +48,7 @@ public class SelectionAreaMenu : MonoBehaviour
 
     private void Update()
     {
-        bool shouldBeInteractable = !MatchMakingMenu.Instance.IsMatchmakingInProgress;
+        bool shouldBeInteractable = !MatchmakingMenu.Instance.IsMatchmakingInProgress;
         for (int i = 0; i < 3; i++)
         {
             var button = GetButtonByIndex(i);

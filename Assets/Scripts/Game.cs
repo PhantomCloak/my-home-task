@@ -3,13 +3,13 @@ using Newtonsoft.Json;
 using Photon.Pun;
 using UnityEngine;
 
-public class PlayerInitialSetup : MonoBehaviour
+public class Game : MonoBehaviour
 {
     [SerializeField]
     private int m_NumOfWood = 10;
 
     private const string m_ResourcePrefabPath = "Prefabs/";
-    public static PlayerInitialSetup Instance;
+    public static Game Instance;
     private Dictionary<int, PhotonView> m_SpawnedWoods = new();
 
     private void Awake()
@@ -38,7 +38,7 @@ public class PlayerInitialSetup : MonoBehaviour
     {
         var playerPrefab = Resources.Load(m_ResourcePrefabPath + GetPrefabName(Character.Red));
         var player = Instantiate(playerPrefab, Vector3.zero, Quaternion.identity) as GameObject;
-        player.GetComponent<SampleMove>().enabled = true;
+        player.GetComponent<DemoPlayer>().enabled = true;
     }
 
     private void StartOnline()
@@ -53,7 +53,7 @@ public class PlayerInitialSetup : MonoBehaviour
             Quaternion.identity,
             0
         );
-        currentPlayer.GetComponent<SampleMove>().enabled = true;
+        currentPlayer.GetComponent<DemoPlayer>().enabled = true;
     }
 
     private void SpawnWoods(bool networked)
@@ -102,7 +102,7 @@ public class PlayerInitialSetup : MonoBehaviour
         }
         else
         {
-            Destroy(obj);
+            Destroy(obj.gameObject);
         }
     }
 
@@ -145,7 +145,7 @@ public class PlayerInitialSetup : MonoBehaviour
     private void OnDeSelectWoodOther(int viewId)
     {
         var wood = m_SpawnedWoods[viewId].GetComponent<WoodResource>();
-        wood.DeSelectOther();
+        wood.DeselectOther();
     }
 
     [PunRPC]

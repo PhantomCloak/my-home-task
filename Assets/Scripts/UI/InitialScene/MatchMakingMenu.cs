@@ -24,10 +24,13 @@ struct MatchmakeInfo
 {
     public string PhotonId;
     public string PlayFabId;
-    public Character SelectedCharacter;
+    public int SelectedCharacter;
+    public int IsRed;
+    public int IsYellow;
+    public int IsGreen;
 }
 
-public class MatchMakingMenu : MonoBehaviour
+public class MatchmakingMenu : MonoBehaviour
 {
     [Header("UI")]
     [SerializeField]
@@ -51,10 +54,10 @@ public class MatchMakingMenu : MonoBehaviour
 
     private static Coroutine s_LoadMatchSequenceCoroutine;
     private static Task s_PollThread;
-    private static CancellationTokenSource s_PollThreadCTS = new();
-    private static CancellationToken s_PollThreadCT = s_PollThreadCTS.Token;
+    private static CancellationTokenSource s_PollThreadCTS;
+    private static CancellationToken s_PollThreadCT;
 
-    public static MatchMakingMenu Instance;
+    public static MatchmakingMenu Instance;
 
     private MatchmakingState m_MatchmakingState;
     private TimeSpan m_SearchStartTime;
@@ -107,8 +110,7 @@ public class MatchMakingMenu : MonoBehaviour
                 s_LoadMatchSequenceCoroutine = StartCoroutine(LoadMatchSequence());
                 break;
             case MatchmakingState.Launching:
-                m_StatusText.text =
-                    $"Match Launching! {MultiplayerManager.Instance.IsMasterClient}";
+                m_StatusText.text = $"Match Launching!";
                 break;
             case MatchmakingState.Idle:
                 m_StatusText.text = "Find Match!";
@@ -158,6 +160,7 @@ public class MatchMakingMenu : MonoBehaviour
     // Additionally we should check game version etc.
     private void CreateTicket()
     {
+        var selectedChracter = SelectionAreaMenu.Instance.SelectedCharacter;
         PlayFabMultiplayerAPI.CreateMatchmakingTicket(
             new CreateMatchmakingTicketRequest
             {
@@ -170,7 +173,10 @@ public class MatchMakingMenu : MonoBehaviour
                         {
                             PhotonId = MultiplayerManager.Instance.NetcodeUserId,
                             PlayFabId = CloudApi.PlayFabId,
-                            SelectedCharacter = SelectionAreaMenu.Instance.SelectedCharacter
+                            SelectedCharacter = (int)selectedChracter,
+                            IsRed = selectedChracter == Character.Red ? 1 : 0,
+                            IsGreen = selectedChracter == Character.Green ? 1 : 0,
+                            IsYellow = selectedChracter == Character.Yellow ? 1 : 0
                         },
                     },
                 },
@@ -269,10 +275,10 @@ public class MatchMakingMenu : MonoBehaviour
 
                         if (player.Entity.Id == CloudApi.EntityId)
                         {
-                            SharedVariables.CurrentMultiplayerRoom.MyCharacter =
+                            SharedVariables.CurrentMultiplayerRoom.MyCharacter = (Character)
                                 info.SelectedCharacter;
                             SharedVariables.CurrentMultiplayerRoom.PlayersInRoom.TryAdd(
-                                info.SelectedCharacter,
+                                (Character)info.SelectedCharacter,
                                 Snapshot.CurrentSnapshoot
                             );
                         }
@@ -282,9 +288,8 @@ public class MatchMakingMenu : MonoBehaviour
                                 Task.Run(async () =>
                                 {
                                     var snap = await Snapshot.GetSnapshotOtherAsync(info.PlayFabId);
-                                    Debug.Log("Got other player snap");
                                     SharedVariables.CurrentMultiplayerRoom.PlayersInRoom.TryAdd(
-                                        info.SelectedCharacter,
+                                        (Character)info.SelectedCharacter,
                                         snap
                                     );
                                 })
@@ -320,8 +325,6 @@ public class MatchMakingMenu : MonoBehaviour
         );
     }
 
-    private void TryLaunchGame() { }
-
     private Task<GetMatchmakingTicketResult> GetMatchmakingTicketAsync(string ticketId)
     {
         var tcs = new TaskCompletionSource<GetMatchmakingTicketResult>();
@@ -333,16 +336,6 @@ public class MatchMakingMenu : MonoBehaviour
         );
 
         return tcs.Task;
-    }
-
-    private void OnGetMatchmakingTicket(GetMatchmakingTicketResult result)
-    {
-        Debug.Log($"Ticket Status: {result.Status}");
-
-        foreach (var player in result.Members)
-        {
-            Debug.Log($"Player: {player.Entity.Id} - {player.Entity.Type}");
-        }
     }
 
     private void OnMatchmakingError(PlayFabError error)
@@ -366,6 +359,9 @@ public class MatchMakingMenu : MonoBehaviour
             s_PollThread.Dispose();
             s_PollThread = null;
         }
+
+		s_PollThreadCTS = new ();
+		s_PollThreadCT = s_PollThreadCTS.Token;
 
         if (s_LoadMatchSequenceCoroutine != null)
         {

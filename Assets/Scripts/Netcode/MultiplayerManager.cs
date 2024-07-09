@@ -1,6 +1,6 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
@@ -11,7 +11,12 @@ public class NetcodeCallbackResult
     string ErrorMessage;
 
     public NetcodeCallbackResult() { }
-    public NetcodeCallbackResult(bool isSuccess, string errorMessage = "") { IsSuccess = isSuccess; ErrorMessage = errorMessage; }
+
+    public NetcodeCallbackResult(bool isSuccess, string errorMessage = "")
+    {
+        IsSuccess = isSuccess;
+        ErrorMessage = errorMessage;
+    }
 };
 
 public class MultiplayerManager : MonoBehaviourPunCallbacks
@@ -28,34 +33,22 @@ public class MultiplayerManager : MonoBehaviourPunCallbacks
 
     public int Ping
     {
-        get
-        {
-            return PhotonNetwork.GetPing();
-        }
+        get { return PhotonNetwork.GetPing(); }
     }
 
     public static bool IsConnected
     {
-        get
-        {
-            return PhotonNetwork.IsConnected;
-        }
+        get { return PhotonNetwork.IsConnected; }
     }
 
     public string NetcodeUserId
     {
-        get
-        {
-            return PhotonNetwork.LocalPlayer.UserId;
-        }
+        get { return PhotonNetwork.LocalPlayer.UserId; }
     }
 
     public bool IsMasterClient
     {
-        get
-        {
-            return PhotonNetwork.LocalPlayer.IsMasterClient;
-        }
+        get { return PhotonNetwork.LocalPlayer.IsMasterClient; }
     }
 
     public void Connect()
@@ -66,13 +59,42 @@ public class MultiplayerManager : MonoBehaviourPunCallbacks
         PhotonNetwork.AutomaticallySyncScene = true;
     }
 
-    public void JoinOrCreateRoom(string roomId, Action<NetcodeCallbackResult> callback, IEnumerable<string> reservedSlots = null)
+    public void Disconnect()
+    {
+        if (PhotonNetwork.InRoom)
+        {
+            PhotonNetwork.LeaveRoom();
+        }
+
+        if (PhotonNetwork.InLobby)
+        {
+            PhotonNetwork.LeaveLobby();
+        }
+
+        if (PhotonNetwork.IsConnected)
+        {
+            PhotonNetwork.Disconnect();
+        }
+
+        Debug.Log("Disconnected from photon network");
+    }
+
+    public void JoinOrCreateRoom(
+        string roomId,
+        Action<NetcodeCallbackResult> callback,
+        IEnumerable<string> reservedSlots = null
+    )
     {
         RoomOptions roomOptions = new RoomOptions();
         roomOptions.IsVisible = false;
         roomOptions.PublishUserId = true;
-        PhotonNetwork.JoinOrCreateRoom(roomId, roomOptions, null, reservedSlots != null ? reservedSlots.ToArray() : null);
-		m_JoinCallback = callback;
+        PhotonNetwork.JoinOrCreateRoom(
+            roomId,
+            roomOptions,
+            null,
+            reservedSlots != null ? reservedSlots.ToArray() : null
+        );
+        m_JoinCallback = callback;
     }
 
     public override void OnConnectedToMaster()
@@ -83,10 +105,7 @@ public class MultiplayerManager : MonoBehaviourPunCallbacks
 
     public override void OnDisconnected(DisconnectCause cause)
     {
-        Debug.LogWarningFormat(
-            "OnDisconnected() was called by PUN with reason {0}",
-            cause
-        );
+        Debug.LogWarningFormat("OnDisconnected() was called by PUN with reason {0}", cause);
     }
 
     public override void OnRoomListUpdate(List<RoomInfo> roomList)

@@ -392,10 +392,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 7402483835916158902}
   m_Enabled: 0
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6fdf15b5f6cb34658b7c5fa231d7d6d8, type: 3}
+  m_Script: {fileID: 11500000, guid: f2bd0fd9a5e454979a08ec8e5b9121b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Speed: 15
+  Speed: 50
   m_MovevementCurve:
     serializedVersion: 2
     m_Curve:
@@ -420,7 +420,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  m_WoodColliderTag: 
+  m_WoodColliderTag: Wood
   m_AdditionalStopDistance: 1
 --- !u!65 &491655833584344176
 BoxCollider:

@@ -60,7 +60,6 @@ public static class CloudApi
                 },
                 (error) =>
                 {
-                    Debug.LogError($"Failed to update user data: {error.GenerateErrorReport()}");
                     tcs.SetException(
                         new Exception($"Failed to update user data: {error.GenerateErrorReport()}")
                     );
@@ -120,7 +119,6 @@ public static class CloudApi
                 },
                 (error) =>
                 {
-                    Debug.LogError($"Failed to get user data: {error.GenerateErrorReport()}");
                     tcs.SetException(
                         new Exception($"Failed to get user data: {error.GenerateErrorReport()}")
                     );
@@ -168,7 +166,6 @@ public static class CloudApi
                 },
                 (error) =>
                 {
-                    Debug.LogError($"Failed to check user data: {error.GenerateErrorReport()}");
                     tcs.SetException(
                         new Exception($"Failed to check user data: {error.GenerateErrorReport()}")
                     );
@@ -190,5 +187,11 @@ public static class CloudApi
             Debug.LogError($"IsExistVariableCloudAsync failed: {e.Message} - {e.StackTrace}");
             throw;
         }
+    }
+
+    public static void Clear()
+    {
+        m_EntityId = string.Empty;
+        m_PlayfabId = string.Empty;
     }
 }

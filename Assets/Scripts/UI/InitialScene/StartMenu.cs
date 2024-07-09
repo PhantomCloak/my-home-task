@@ -1,12 +1,11 @@
 using PlayFab;
 using PlayFab.ClientModels;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class StartMenu : MonoBehaviour
 {
     [SerializeField]
-    private MatchMakingMenu m_MatchMakingMenu;
+    private MatchmakingMenu m_MatchMakingMenu;
 
     private bool m_LoginInProgress = false;
 

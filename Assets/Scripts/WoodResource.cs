@@ -19,7 +19,7 @@ public class WoodResource : MonoBehaviour
 
     private IEnumerator Start() {
 		yield return new WaitForEndOfFrame(); // Little trick to call after photon-view
-		PlayerInitialSetup.Instance.AddWood(this);
+		Game.Instance.AddWood(this);
 	}
 
     public void Select()
@@ -32,7 +32,7 @@ public class WoodResource : MonoBehaviour
         Highlight(this, true);
     }
 
-    public void DeSelect()
+    public void Deselect()
     {
 		Highlight(s_CurrentHighlight, false);
     }
@@ -41,7 +41,7 @@ public class WoodResource : MonoBehaviour
 		HighlightOther(this, true);
 	}
 
-	public void DeSelectOther() {
+	public void DeselectOther() {
 		HighlightOther(this, false);
 	}
 

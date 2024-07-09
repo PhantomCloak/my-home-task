@@ -1,7 +1,7 @@
 using System.Linq;
 using UnityEngine;
 
-public class SampleMove : MonoBehaviour
+public class DemoPlayer : MonoBehaviour
 {
     public float Speed = 2.0f;
 
@@ -56,12 +56,12 @@ public class SampleMove : MonoBehaviour
                     m_CurrentTargetResource = wood;
                     m_CurrentTargetResource.Select();
 
-                    PlayerInitialSetup.Instance.SelectWoodOthers(wood);
+                    Game.Instance.SelectWoodOthers(wood);
                 }
                 else if (m_CurrentTargetResource)
                 {
-                    m_CurrentTargetResource.DeSelect();
-                    PlayerInitialSetup.Instance.DeSelectWoodOthers(m_CurrentTargetResource);
+                    m_CurrentTargetResource.Deselect();
+                    Game.Instance.DeSelectWoodOthers(m_CurrentTargetResource);
                     m_CurrentTargetResource = null;
                 }
             }
@@ -98,7 +98,7 @@ public class SampleMove : MonoBehaviour
             return;
         }
 
-        PlayerInitialSetup.Instance.DestroyWood(collider.gameObject.GetComponent<WoodResource>());
+        Game.Instance.DestroyWood(collider.gameObject.GetComponent<WoodResource>());
         m_CurrentTargetResource = null;
 
         // Altough there is batching going on internally, this call can be optimised further on game-play level
