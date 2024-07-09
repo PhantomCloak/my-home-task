@@ -1,16 +1,27 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Photon.Pun;
+using TMPro;
 using UnityEngine;
 
 public class Game : MonoBehaviour
 {
+	[Header("UI")]
+    [SerializeField]
+    private TMP_Text m_ScoreText;
+
     [SerializeField]
     private int m_NumOfWood = 10;
 
-    private const string m_ResourcePrefabPath = "Prefabs/";
-    public static Game Instance;
+    [SerializeField]
+    private int m_Radius = 10;
+
     private Dictionary<int, PhotonView> m_SpawnedWoods = new();
+
+    public static Game Instance;
+    private const string m_ResourcePrefabPath = "Prefabs/";
+
+	private int m_Score = 0;
 
     private void Awake()
     {
@@ -62,9 +73,9 @@ public class Game : MonoBehaviour
         for (int i = 0; i < m_NumOfWood; i++)
         {
             Vector3 randomWoodPosition = new Vector3(
-                Random.Range(-10f, 10f),
+                Random.Range(-m_Radius, m_Radius),
                 0,
-                Random.Range(-10f, 10f)
+                Random.Range(-m_Radius, m_Radius)
             );
 
             if (networked)
@@ -104,6 +115,9 @@ public class Game : MonoBehaviour
         {
             Destroy(obj.gameObject);
         }
+
+		m_Score++;
+		m_ScoreText.text = $"Score: {m_Score}";
     }
 
     public void SelectWoodOthers(WoodResource obj)

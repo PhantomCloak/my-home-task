@@ -28,6 +28,7 @@ struct MatchmakeInfo
     public int IsRed;
     public int IsYellow;
     public int IsGreen;
+	public string ApplicationVersion;
 }
 
 public class MatchmakingMenu : MonoBehaviour
@@ -176,7 +177,8 @@ public class MatchmakingMenu : MonoBehaviour
                             SelectedCharacter = (int)selectedChracter,
                             IsRed = selectedChracter == Character.Red ? 1 : 0,
                             IsGreen = selectedChracter == Character.Green ? 1 : 0,
-                            IsYellow = selectedChracter == Character.Yellow ? 1 : 0
+                            IsYellow = selectedChracter == Character.Yellow ? 1 : 0,
+							ApplicationVersion = Application.version
                         },
                     },
                 },
