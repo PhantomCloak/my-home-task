@@ -32,13 +32,13 @@ public class PlayerStatsMenu : MonoBehaviour
         {
             m_NameText.text = $"Name: {snapHandle.Value.PlayerName}";
             m_LaunchCountText.text = $"Launch Count: {snapHandle.Value.Stats.LaunchCount}";
-			m_WoodCount.text = $"Wood Count: {snapHandle.Value.Items.FirstOrDefault(item => item.Name == "wood")?.Count ?? 0}x";
+			m_WoodCount.text = $"Wood Count: {snapHandle.Value.Items.FirstOrDefault(item => item.Name == "Wood")?.Count ?? 0}x";
         }
     }
 
     private void Update()
     {
-        if (MultiplayerManager.Instance != null && MultiplayerManager.Instance.IsConnected)
+        if (MultiplayerManager.Instance != null && MultiplayerManager.IsConnected)
         {
             if (Time.time - m_LastPollPing > m_PollPingSec)
             {

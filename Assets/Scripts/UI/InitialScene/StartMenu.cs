@@ -97,6 +97,7 @@ public class StartMenu : MonoBehaviour
     private void OnLoginSuccess(LoginResult result)
     {
 		CloudApi.EntityId = result.EntityToken.Entity.Id;
+		CloudApi.PlayFabId = result.PlayFabId;
 		Debug.Log("Entity Id: " + CloudApi.EntityId);
         PlayerInitialization();
     }

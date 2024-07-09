@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class WoodResource : MonoBehaviour
@@ -11,9 +12,15 @@ public class WoodResource : MonoBehaviour
     private Material m_HighlightMat;
 
     [SerializeField]
+    private Material m_HighlightMatOther;
+
+    [SerializeField]
     private MeshRenderer[] ChildMeshRenderers = new MeshRenderer[3];
 
-    private void Start() { }
+    private IEnumerator Start() {
+		yield return new WaitForEndOfFrame(); // Little trick to call after photon-view
+		PlayerInitialSetup.Instance.AddWood(this);
+	}
 
     public void Select()
     {
@@ -25,7 +32,18 @@ public class WoodResource : MonoBehaviour
         Highlight(this, true);
     }
 
-    public void DeSelect() { }
+    public void DeSelect()
+    {
+		Highlight(s_CurrentHighlight, false);
+    }
+
+	public void SelectOther() {
+		HighlightOther(this, true);
+	}
+
+	public void DeSelectOther() {
+		HighlightOther(this, false);
+	}
 
     private void Highlight(WoodResource resource, bool enable)
     {
@@ -33,4 +51,10 @@ public class WoodResource : MonoBehaviour
             child.material = enable ? m_HighlightMat : m_DefaultMat;
         s_CurrentHighlight = this;
     }
+
+    private void HighlightOther(WoodResource resource, bool enable)
+	{
+        foreach (var child in resource.ChildMeshRenderers)
+            child.material = enable ? m_HighlightMatOther : m_DefaultMat;
+	}
 }

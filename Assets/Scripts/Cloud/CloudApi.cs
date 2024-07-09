@@ -8,26 +8,23 @@ using UnityEngine;
 
 public static class CloudApi
 {
-
     public static bool IsConnected
     {
-        get
-        {
-            return PlayFabClientAPI.IsClientLoggedIn();
-        }
+        get { return PlayFabClientAPI.IsClientLoggedIn(); }
     }
 
     private static string m_EntityId = string.Empty;
     public static string EntityId
     {
-        get
-        {
-            return m_EntityId;
-        }
-        set
-        {
-            m_EntityId = value;
-        }
+        get { return m_EntityId; }
+        set { m_EntityId = value; }
+    }
+
+    private static string m_PlayfabId = string.Empty;
+    public static string PlayFabId
+    {
+        get { return m_PlayfabId; }
+        set { m_PlayfabId = value; }
     }
 
     public static async Task SetVariableCloudAsync<T>(
@@ -52,7 +49,7 @@ public static class CloudApi
                 {
                     { variableName, jsonStr }
                 },
-                Permission = UserDataPermission.Private
+                Permission = UserDataPermission.Public
             };
 
             PlayFabClientAPI.UpdateUserData(
@@ -86,21 +83,26 @@ public static class CloudApi
         }
     }
 
-
-    public static async Task<T> GetVariableCloudAsync<T>(string variableName, int timeOutMs = 2000)
+    public static async Task<T> GetVariableCloudAsync<T>(
+        string variableName,
+        string playerId = "",
+        int timeOutMs = 2000
+    )
     {
         var tcs = new TaskCompletionSource<T>();
         var timeout = TimeSpan.FromMilliseconds(timeOutMs);
 
         try
         {
-            Debug.Log($"GetVariableCloud request sending with variableName: {variableName}");
+            Debug.Log(
+                $"GetVariableCloud request sending with variableName: {variableName} User {playerId}"
+            );
 
             var request = new GetUserDataRequest
             {
-                Keys = new List<string> { variableName }
+                Keys = new List<string> { variableName },
+                PlayFabId = playerId,
             };
-
             PlayFabClientAPI.GetUserData(
                 request,
                 (result) =>
@@ -119,7 +121,9 @@ public static class CloudApi
                 (error) =>
                 {
                     Debug.LogError($"Failed to get user data: {error.GenerateErrorReport()}");
-                    tcs.SetException(new Exception($"Failed to get user data: {error.GenerateErrorReport()}"));
+                    tcs.SetException(
+                        new Exception($"Failed to get user data: {error.GenerateErrorReport()}")
+                    );
                 }
             );
 
@@ -140,19 +144,21 @@ public static class CloudApi
         }
     }
 
-    public static async Task<bool> IsExistVariableCloudAsync(string variableName, int timeOutMs = 2000)
+    public static async Task<bool> IsExistVariableCloudAsync(
+        string variableName,
+        int timeOutMs = 2000
+    )
     {
         var tcs = new TaskCompletionSource<bool>();
         var timeout = TimeSpan.FromMilliseconds(timeOutMs);
 
         try
         {
-            Debug.Log($"IsExistVariableCloudAsync request sending with variableName: {variableName}");
+            Debug.Log(
+                $"IsExistVariableCloudAsync request sending with variableName: {variableName}"
+            );
 
-            var request = new GetUserDataRequest
-            {
-                Keys = new List<string> { variableName }
-            };
+            var request = new GetUserDataRequest { Keys = new List<string> { variableName } };
 
             PlayFabClientAPI.GetUserData(
                 request,
@@ -163,7 +169,9 @@ public static class CloudApi
                 (error) =>
                 {
                     Debug.LogError($"Failed to check user data: {error.GenerateErrorReport()}");
-                    tcs.SetException(new Exception($"Failed to check user data: {error.GenerateErrorReport()}"));
+                    tcs.SetException(
+                        new Exception($"Failed to check user data: {error.GenerateErrorReport()}")
+                    );
                 }
             );
 

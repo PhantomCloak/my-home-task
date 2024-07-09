@@ -32,13 +32,18 @@ public class SampleMove : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePresent ? Input.mousePosition : Input.GetTouch(0).position);
+            Ray ray = Camera.main.ScreenPointToRay(
+                Input.mousePresent ? Input.mousePosition : Input.GetTouch(0).position
+            );
             if (Physics.Raycast(ray, out var hit))
             {
-
                 var isResource = hit.collider.CompareTag("Wood");
                 var destination = isResource
-                    ? hit.point - (m_AdditionalStopDistance * Vector3.Normalize(hit.point - currentPositionMinusY))
+                    ? hit.point
+                        - (
+                            m_AdditionalStopDistance
+                            * Vector3.Normalize(hit.point - currentPositionMinusY)
+                        )
                     : hit.point;
                 destination.y = 0;
 
@@ -46,12 +51,17 @@ public class SampleMove : MonoBehaviour
 
                 if (isResource)
                 {
-                    m_CurrentTargetResource = hit.collider.gameObject.GetComponent<WoodResource>();
+                    var wood = hit.collider.gameObject.GetComponent<WoodResource>();
+
+                    m_CurrentTargetResource = wood;
                     m_CurrentTargetResource.Select();
+
+                    PlayerInitialSetup.Instance.SelectWoodOthers(wood);
                 }
                 else if (m_CurrentTargetResource)
                 {
                     m_CurrentTargetResource.DeSelect();
+                    PlayerInitialSetup.Instance.DeSelectWoodOthers(m_CurrentTargetResource);
                     m_CurrentTargetResource = null;
                 }
             }
@@ -76,7 +86,7 @@ public class SampleMove : MonoBehaviour
         }
     }
 
-    void OnTriggerEnter(Collider collider)
+    private void OnTriggerEnter(Collider collider)
     {
         if (!collider.CompareTag("Wood"))
         {
@@ -88,13 +98,17 @@ public class SampleMove : MonoBehaviour
             return;
         }
 
-		Destroy(collider.gameObject);
+        PlayerInitialSetup.Instance.DestroyWood(collider.gameObject.GetComponent<WoodResource>());
+        m_CurrentTargetResource = null;
 
-		// Altough there is batching going on internally, this call can be optimised further on game-play level
-        using (var snapHandle = new SnapshotHandle(AcquireType.ReadWrite))
+        // Altough there is batching going on internally, this call can be optimised further on game-play level
+        if (CloudApi.IsConnected)
         {
-			var woodResource = snapHandle.Value.Items.FirstOrDefault();
-			woodResource.Count++;
+            using (var snapHandle = new SnapshotHandle(AcquireType.ReadWrite))
+            {
+                var woodResource = snapHandle.Value.Items.FirstOrDefault();
+                woodResource.Count++;
+            }
         }
     }
 }

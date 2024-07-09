@@ -1,49 +1,90 @@
+using System;
+using System.Linq;
 using System.Collections.Generic;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
 
+public class NetcodeCallbackResult
+{
+    bool IsSuccess;
+    string ErrorMessage;
+
+    public NetcodeCallbackResult() { }
+    public NetcodeCallbackResult(bool isSuccess, string errorMessage = "") { IsSuccess = isSuccess; ErrorMessage = errorMessage; }
+};
+
 public class MultiplayerManager : MonoBehaviourPunCallbacks
 {
-	public static MultiplayerManager Instance;
+    public static MultiplayerManager Instance;
 
-	private void Awake() {
-		Instance = this;
-		DontDestroyOnLoad(this);
-	}
+    private Action<NetcodeCallbackResult> m_JoinCallback;
 
-	public int Ping {
-		get {
-			return PhotonNetwork.GetPing();
-		}
-	}
+    private void Awake()
+    {
+        Instance = this;
+        DontDestroyOnLoad(this);
+    }
 
-	public bool IsConnected {
-		get {
-			return PhotonNetwork.IsConnected;
-		}
-	}
+    public int Ping
+    {
+        get
+        {
+            return PhotonNetwork.GetPing();
+        }
+    }
+
+    public static bool IsConnected
+    {
+        get
+        {
+            return PhotonNetwork.IsConnected;
+        }
+    }
+
+    public string NetcodeUserId
+    {
+        get
+        {
+            return PhotonNetwork.LocalPlayer.UserId;
+        }
+    }
+
+    public bool IsMasterClient
+    {
+        get
+        {
+            return PhotonNetwork.LocalPlayer.IsMasterClient;
+        }
+    }
 
     public void Connect()
     {
         Debug.Log("Trying to connect photon network..");
         PhotonNetwork.ConnectUsingSettings();
         PhotonNetwork.GameVersion = Application.version;
+        PhotonNetwork.AutomaticallySyncScene = true;
+    }
+
+    public void JoinOrCreateRoom(string roomId, Action<NetcodeCallbackResult> callback, IEnumerable<string> reservedSlots = null)
+    {
+        RoomOptions roomOptions = new RoomOptions();
+        roomOptions.IsVisible = false;
+        roomOptions.PublishUserId = true;
+        PhotonNetwork.JoinOrCreateRoom(roomId, roomOptions, null, reservedSlots != null ? reservedSlots.ToArray() : null);
+		m_JoinCallback = callback;
     }
 
     public override void OnConnectedToMaster()
     {
-        Debug.Log("PUN Basics Tutorial/Launcher: OnConnectedToMaster() was called by PUN");
-
-		RoomOptions roomOptions = new RoomOptions();
-		roomOptions.IsVisible = false;
-		//PhotonNetwork.JoinOrCreateRoom("Room01", roomOptions, null);
+        RoomOptions roomOptions = new RoomOptions();
+        roomOptions.IsVisible = false;
     }
 
     public override void OnDisconnected(DisconnectCause cause)
     {
         Debug.LogWarningFormat(
-            "PUN Basics Tutorial/Launcher: OnDisconnected() was called by PUN with reason {0}",
+            "OnDisconnected() was called by PUN with reason {0}",
             cause
         );
     }
@@ -55,13 +96,10 @@ public class MultiplayerManager : MonoBehaviourPunCallbacks
         {
             Debug.Log(room.Name);
         }
-        //PhotonNetwork.JoinRoom("RoomOne");
     }
 
     public override void OnJoinedRoom()
     {
-        Debug.Log(
-            $"PUN Basics Tutorial/Launcher: OnJoinedRoom() called by PUN. Now this client is in a room. Number: {PhotonNetwork.CountOfPlayersInRooms}. IsMaster: {PhotonNetwork.IsMasterClient}"
-        );
+        m_JoinCallback?.Invoke(new NetcodeCallbackResult(true));
     }
 }

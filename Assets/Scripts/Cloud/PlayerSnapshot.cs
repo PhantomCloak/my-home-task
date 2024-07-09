@@ -165,6 +165,22 @@ public class Snapshot
         });
     }
 
+    public static async Task<PlayerSnapshot> GetSnapshotOtherAsync(string userId)
+    {
+        PlayerSnapshot result = null;
+        try
+        {
+            result = await CloudApi.GetVariableCloudAsync<PlayerSnapshot>(CloudConstants.SnapshotKey, userId);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Snapshot other fetch request failed: {e.Message}");
+            return default;
+        }
+
+        return result;
+    }
+
     private static async Task<PlayerSnapshot> GetSnapshotAsync()
     {
         PlayerSnapshot result = null;
